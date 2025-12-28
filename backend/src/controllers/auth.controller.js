@@ -10,7 +10,7 @@ export const signup = async (req, res) => {
         if (!fullName || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
         }
-        
+
         // hash password-bcryptjs
         if (password.length < 6) {
             return res.status(400).json({ message: "Password must be at least 6 characters long" });
@@ -44,13 +44,38 @@ export const signup = async (req, res) => {
     }
 };
 
-export const login = (req, res) => {
+export const login = async (req, res) => {
+    const { email, password } = req.body;
     // Handle login logic here
-    res.send("Login route");
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+
+        // generate token
+        generateToken(user._id, res);
+        res.status(200).json({ message: "Login successful", _id: user._id, fullName: user.fullName, email: user.email, profilePic: user.profilePic });
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).json({ message: "Internal Server error" });
+    }
 };
 
 export const logout = (req, res) => {
     // Handle logout logic here
-    res.send("Logout route");
+    try {
+        res.cookie("jwt", "", { maxAge: 0 }); // expire the cookie immediately
+        res.status(200).json({ message: "Logout successful" });
+        
+    } catch (error) {
+        console.error("Error during logout:", error);
+        res.status(500).json({ message: "Internal Server error" });
+    }
 };
 
