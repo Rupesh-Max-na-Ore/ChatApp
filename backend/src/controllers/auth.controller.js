@@ -1,6 +1,8 @@
 import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
+import cloudinary from "../lib/cloudinary.js";
 import bcrypt from "bcryptjs";
+import e from "express";
 
 export const signup = async (req, res) => {
     const { fullName, email, password } = req.body;
@@ -79,3 +81,33 @@ export const logout = (req, res) => {
     }
 };
 
+export const updateProfile = async (req, res) => {
+    
+    try {
+        const { profilePic } = req.body;
+        const userId = req.user._id; // from protectRoute middleware
+        if (!profilePic) {
+            return res.status(400).json({ message: "Profile picture URL is required" });
+        }
+        
+        const uploadResponse = await cloudinary.uploader.upload(profilePic);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic: uploadResponse.secure_url },
+            { new: true }
+        );
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.error("Error during profile update:", error);
+        res.status(500).json({ message: "Internal Server error" });
+    }
+};
+
+export const checkAuth = async (req, res) => {
+    try {
+        res.status(200).json(req.user); // from protectRoute middleware
+    } catch (error) {
+        console.error("Error during checkAuth:", error);
+        res.status(500).json({ message: "Internal Server error" });
+    }
+};
