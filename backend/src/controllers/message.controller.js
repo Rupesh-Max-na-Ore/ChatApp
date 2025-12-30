@@ -17,6 +17,11 @@ export const getUsersForSidebar = async (req, res) => {
 export const getMessages = async (req, res) => {
     try {
         const { id:userToChatId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(userToChatId)) {
+            return res.status(400).json({ message: "Invalid user id" });
+        }
+
         const myId = req.user._id;
 
         const messages = await Message.find({

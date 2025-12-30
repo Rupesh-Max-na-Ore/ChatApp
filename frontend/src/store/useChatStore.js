@@ -14,6 +14,9 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/users");
+
+      console.log("GET /messages/users response:", res.data);
+
       set({ users: res.data });
     } catch (error) {
       toast.error(error.response.data.message);
@@ -44,25 +47,34 @@ export const useChatStore = create((set, get) => ({
   },
 
   subscribeToMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
+  
+},
 
-    const socket = useAuthStore.getState().socket;
+unsubscribeFromMessages: () => {
+  
+},
 
-    socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
 
-      set({
-        messages: [...get().messages, newMessage],
-      });
-    });
-  },
+//   subscribeToMessages: () => {
+//     const { selectedUser } = get();
+//     if (!selectedUser) return;
 
-  unsubscribeFromMessages: () => {
-    const socket = useAuthStore.getState().socket;
-    socket.off("newMessage");
-  },
+//     const socket = useAuthStore.getState().socket;
+
+//     socket.on("newMessage", (newMessage) => {
+//       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+//       if (!isMessageSentFromSelectedUser) return;
+
+//       set({
+//         messages: [...get().messages, newMessage],
+//       });
+//     });
+//   },
+
+//   unsubscribeFromMessages: () => {
+//     const socket = useAuthStore.getState().socket;
+//     socket.off("newMessage");
+//   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));

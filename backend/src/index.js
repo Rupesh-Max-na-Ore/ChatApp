@@ -20,7 +20,7 @@ app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 // authentication routes
 app.use("/api/auth", authRoutes);
 // message route
-app.use("/api/message", messageRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);
