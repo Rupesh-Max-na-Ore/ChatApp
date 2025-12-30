@@ -11,6 +11,7 @@ const io = new Server(server, {
   },
 });
 
+// function to get socket id of a user using its userId
 export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }

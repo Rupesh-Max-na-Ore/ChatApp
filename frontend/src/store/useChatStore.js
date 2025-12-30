@@ -46,35 +46,27 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  subscribeToMessages: () => {
+    subscribeToMessages: () => {
+      const { selectedUser } = get();
+      if (!selectedUser) return;
   
-},
-
-unsubscribeFromMessages: () => {
+      const socket = useAuthStore.getState().socket;
   
-},
+      socket.on("newMessage", (newMessage) => {
+        const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+        if (!isMessageSentFromSelectedUser) return;
+      // keep all previous messages and append then the new message at the end 
+        set({
+          messages: [...get().messages, newMessage],
+        });
+      });
+    },
+  // when close the window, unsubscribe from messages
+    unsubscribeFromMessages: () => {
+      const socket = useAuthStore.getState().socket;
+      socket.off("newMessage");
+    },
 
-
-//   subscribeToMessages: () => {
-//     const { selectedUser } = get();
-//     if (!selectedUser) return;
-
-//     const socket = useAuthStore.getState().socket;
-
-//     socket.on("newMessage", (newMessage) => {
-//       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-//       if (!isMessageSentFromSelectedUser) return;
-
-//       set({
-//         messages: [...get().messages, newMessage],
-//       });
-//     });
-//   },
-
-//   unsubscribeFromMessages: () => {
-//     const socket = useAuthStore.getState().socket;
-//     socket.off("newMessage");
-//   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
