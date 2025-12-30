@@ -2,33 +2,37 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+
+import path from "path";
+
 import { connectDB } from "./lib/db.js";
+
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { app, server } from "./lib/socket.js";
 
-import path from "path";
-
 dotenv.config();
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT;
 const __dirname = path.resolve();
-// Middleware to parse JSON requests, like signup requests
-// app.use(express.json());
-// app.use(express.json({ limit: "10mb" }));
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// allow to parse cookies from incoming requests
+app.use(express.json());
 app.use(cookieParser());
 
-// enable CORS for all origins (you can restrict it in production)
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
-// app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://chatapp-ucpp.onrender.com"
+];
 
-// authentication routes
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+
+
 app.use("/api/auth", authRoutes);
-// message route
 app.use("/api/messages", messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
@@ -41,8 +45,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-
 server.listen(PORT, () => {
-    console.log(`server is running on port ${PORT}`);
-    connectDB();
+  console.log("server is running on PORT:" + PORT);
+  connectDB();
 });
