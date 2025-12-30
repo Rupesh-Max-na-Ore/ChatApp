@@ -10,12 +10,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 // Middleware to parse JSON requests, like signup requests
-app.use(express.json());
+// app.use(express.json());
+// app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 // allow to parse cookies from incoming requests
 app.use(cookieParser());
 
 // enable CORS for all origins (you can restrict it in production)
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+// app.use(cors());
 
 // authentication routes
 app.use("/api/auth", authRoutes);
